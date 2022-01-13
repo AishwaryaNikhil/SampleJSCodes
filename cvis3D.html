@@ -1,0 +1,335 @@
+<!--Refer JS file: cvis3D.js-->
+<div ng-controller="cvis3dController as  cvisd" ng-init="load3dPage()">
+    <div id="mySidenav" class="sidenav">
+        <div>
+            <a href="javascript:void(0)" class="closebtn" ng-click="closeNav()">&times;</a>
+        </div>
+        <div class="checkbox" style="padding-left: 10px; color: white">
+            <label><input type="checkbox" id="checkall" ng-click="changeScene()">UnCheck All</label>
+        </div>
+        <div id="jstree">
+
+        </div>
+
+
+    </div>
+
+    <div id="mySidenav1" class="sidenav" ng-init="loadNotes()">
+        <div>
+            <a href="javascript:void(0)" class="closebtn" ng-click="closeNav2()">&times;</a>
+        </div>
+        <div align="center" class="checkbox" style="padding-left: 70px; color: white">
+            <label><input type="checkbox" id="checkall" ng-click="viewAllNotes($event)">Check All</label>
+        </div>
+        <div class="divider" style="border-bottom: 1px solid #f0f0f0;"></div> 
+        <div class="checkbox"  ng-repeat="notesdetails in NotesList" style="padding-left: 10px; color: white" >
+            <label><input type="checkbox" ng-model="notesdetails.Selected" ng-click="viewNotes($event,notesdetails)">{{notesdetails.title}}</label>
+            <button type="button" class="close" ng-click="deleteNote(notesdetails.id, notesdetails.parent_id)" style="padding-right: 5px;">&times;</button>
+
+        </div>
+
+    </div>
+
+    <div id="main">
+        <div id="canvasZone">
+            <canvas id="renderCanvas" touch-action="none">
+            </canvas>
+            <div>
+                <div id="topbar" style="position: fixed; right: 0" >
+                    <button id="btnexplorer" class="btn btn-primary" ng-click="loadexplorer()" data-toggle="tooltip" data-placement="right" title="Open Explorer window" style="position: fixed; top: 3px; right: 225px">
+                        <span class="icon-folderview3"></span>
+                    </button>
+
+                    <button id="home" class="btn btn-primary" ng-click="loadHome()" data-toggle="tooltip" data-placement="right" title="Go to Home" style="position: fixed; top: 3px; right: 270px">
+                        <span class="glyphicon glyphicon-home"></span>
+                    </button>
+
+                    <input class="form-control" type="text" ng-model="compname" placeholder="Type Component Name" ng-keypress="enterkeyPressed($event)" style="width: 200px; position: fixed; top: 3px; right: 20px">
+                    <span class="input-group-btn"> 
+                        <button class="btn btn-info" type="button" style="position: fixed; top: 3px; right: 2px" ng-click="searchTree()">
+                            <i class="glyphicon glyphicon-search"></i>
+                        </button></span>
+
+
+                </div>
+                <div>
+                    <div>
+                        <button id="details" ng-show = "Details" class="btn btn-primary detailsbtn" ng-click="openNav()">Details</button> 
+                    </div> 
+
+                    <div>
+                        <button id="notes" ng-show = "Notes" class="btn btn-primary notesbtn" ng-click="openNav2()">Notes</button> 
+                    </div> 
+
+                    <div id="docmodal" class="modal"  role="dialog" style="position: fixed; left: 20%;  max-height: 500px;">
+                        <div class="modal-dialog modal-sm" style="border-color: black; width: 400px">       
+                            <div class="modal-content modelcontent">
+                                <div class="modal-header modelheader3d" >
+                                    <b> {{modelname}}</b>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                                </div>
+                                <div class="modal-body modelbody ">
+                                    <div class="scroll" style="max-height: 300px;overflow:auto;  margin-bottom: 0.01em;">
+                                        <div class="panel-group">
+                                             <div class="panel panel-default" style="background: rgba(0,0,0,0.1); border:0 ">
+                                                <div class="panel-heading"  style="background: rgba(0,0,0,0.1);">
+                                                    <h4 class="panel-title">
+                                                        <a data-toggle="collapse" href="3dwindow/#collapse2" style="color: white">Meta Data & History</a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapse2" class="panel-collapse collapse">
+                                                    <div class="panel-body">
+                                                          <table class="table-condensed">
+<!--                                            <thead style="color: white;" ><th>Linked Documents</th></thead>-->
+                                            <tbody>
+                                                <tr  ng-repeat="doc in documents">
+                                                    <td>
+                                                        <a ng-click="onLinkedDocument(doc.id, doc.name, doc.path)" style="color: white; ">
+                                                            <i class="fa fa-file-text-o"></i>                                        
+                                                            {{doc.name}}
+                                                        </a>
+                                                    </td>
+                                                </tr>
+<!--                                                <tr align="right">
+                                                    <td style="border-top: white 2px dashed">
+                                                        <button class="btn btn-default btn-sm" ng-click="addNotesPopUp()" style="color: white; background: rgba(0,0,0,1)">
+                                                            Add New Note
+                                                        </button>
+                                                    </td>
+                                                </tr>-->
+                                            </tbody>
+                                        </table>
+
+                                                        
+                                                    </div>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="panel panel-default" style="background: rgba(0,0,0,0.1); border:0 ">
+                                                <div class="panel-heading"  style="background: rgba(0,0,0,0.1);">
+                                                    <h4 class="panel-title">
+                                                        <a data-toggle="collapse" href="3dwindow/#collapse1" style="color: white">Linked Documents</a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapse1" class="panel-collapse collapse">
+                                                    <div class="panel-body">
+                                                          <table class="table-condensed">
+<!--                                            <thead style="color: white;" ><th>Linked Documents</th></thead>-->
+                                            <tbody>
+                                                <tr  ng-repeat="doc in documents">
+                                                    <td>
+                                                        <a ng-click="onLinkedDocument(doc.id, doc.name, doc.path)" style="color: white; ">
+                                                            <i class="fa fa-file-text-o"></i>                                        
+                                                            {{doc.name}}
+                                                        </a>
+                                                    </td>
+                                                </tr>
+<!--                                                <tr align="right">
+                                                    <td style="border-top: white 2px dashed">
+                                                        <button class="btn btn-default btn-sm" ng-click="addNotesPopUp()" style="color: white; background: rgba(0,0,0,1)">
+                                                            Add New Note
+                                                        </button>
+                                                    </td>
+                                                </tr>-->
+                                            </tbody>
+                                        </table>
+
+                                                        
+                                                    </div>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="panel panel-default" style="background: rgba(0,0,0,0.1); border:0 ">
+                                                <div class="panel-heading"  style="background: rgba(0,0,0,0.1);">
+                                                    <h4 class="panel-title">
+                                                        <a data-toggle="collapse" href="3dwindow/#collapse3" style="color: white">Notes</a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapse3" class="panel-collapse collapse">
+                                                    <div class="panel-body">
+                                                          <table class="table-condensed">
+<!--                                            <thead style="color: white;" ><th>Linked Documents</th></thead>-->
+                                            <tbody>
+                                                <tr align="right">
+                                                    <td>
+                                                        <button class="btn btn-default btn-sm" ng-click="addNotesPopUp()" style="color: white; background: rgba(0,0,0,1)">
+                                                            Add New Note
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                                        
+                                                    </div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div> 
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    <div id="addNoteModal" class="modal"  role="dialog" style="position: fixed; max-height: 500px;">
+                        <div class="modal-dialog modal-sm" style="border-color: black">       
+                            <div class="modal-content modelcontent">
+                                <div class="modal-header modelheader3d">
+                                    <b> NOTES : {{modelid}}{{modelname}}</b>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                                </div>
+                                <div class="modal-body modelbody ">
+                                    <div class="scroll" style="max-height: 300px; max-width: 400px; overflow:auto;  margin-bottom: 0.01em;">
+                                        <table class="table-condensed">
+                                            <thead><th></th><th></th></thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td style="color: white"> Title </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" ng-model="noteTitle" style="background-color: rgba(0,0,0,0.5); color:white"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td  style="color: white"> Note Context </td>
+                                                    <td>
+                                                        <textarea class="form-control" rows="3" ng-model="noteBody" placeholder="Short Note" style="background-color: rgba(0,0,0,0.5); color:white"></textarea>
+                                                    </td>
+
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-default" ng-click="saveNotes()">Save</button>
+
+                                                    </td>
+
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                    </div> 
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="alert alert-warning alert-dismissable fade in"  hidden="hidden" id="onnoModel" style="position: fixed; left: 25%; top: 20%;">
+                    <a class="close  alert-close" aria-label="close">&times;</a>
+                    <strong>Alert!</strong> There is no 3D component for this level!
+                </div>
+
+                <div id="tools" style="position: fixed; top:25%; right: 0" class="btn-group-vertical">
+                    <div class="dropup">
+                        <button id="cameramode1" type="button" class=" btn btn-primary dropdown-toggle" data-toggle="dropdown" data-placement="right" title="Camera Mode">
+                            <span id="cameraicon" class="icon-orbit"></span>                        
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li>
+
+                                <a  ng-click="universalModel(); showcameramode()"><span  class="fa fa-globe"> Universal </span> </a>  </li>
+
+                            <li>
+                            <li>
+
+                                <a  ng-click="flyModel(); showcameramode()"><span  class="glyphicon glyphicon-send"> Fly </span> </a>  </li>
+
+                            <li>
+
+                                <a ng-click="cameraCAD(); showcameramode()"> <span class="icon-orbit"> Orbit </span>  </a> </li>
+
+                            <li>
+
+                                <a ng-click="WalkThrough(); showcameramode()">  <span class="icon-walkthrough"> Walkthrough </span>  </a>  </li>
+                        </ul>
+
+                    </div>
+
+                    <div class="dropdown">
+                        <button id="axis" type="button" class=" btn btn-primary dropdown-toggle" ng-click="showAxis()" data-toggle="dropdown" data-placement="right" title="Change Position">
+                            <span class="icon-vector"></span>                
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li>
+
+                                <a  ng-click="axeUpXP(); showAxis()"><span  class="glyphicon glyphicon-object-align-left"> Left </span> </a>  </li>
+
+                            <li>
+
+                                <a ng-click="axeUpXM(); showAxis()"> <span class="glyphicon glyphicon-object-align-right"> Right </span>  </a> </li>
+
+                            <li>
+
+                                <a ng-click="axeUpYP(); showAxis()">  <span class="glyphicon glyphicon-object-align-horizontal"> Front </span>  </a>  </li>
+                            <li>
+
+                                <a ng-click="axeUpYM(); showAxis()">  <span class="glyphicon glyphicon-object-align-vertical"> Back </span>  </a>  </li>
+                            <li>
+
+                                <a ng-click="axeUpZP(); showAxis()">  <span class="glyphicon glyphicon-object-align-top"> Top </span>  </a>  </li>
+                            <li>
+
+                                <a ng-click="axeUpZM(); showAxis()">  <span class="glyphicon glyphicon-object-align-bottom"> Bottom </span>  </a>  </li>
+                        </ul>
+
+
+
+                    </div>
+                    <div>
+                        <button ng-model= "showModel" id="tools" type="button" class=" btn btn-primary" ng-click="hideModel()" data-toggle="tooltip" data-placement="right" title="Hide Parts">
+                            <span class="glyphicon glyphicon-eye-close"></span>                
+                        </button></div>
+
+                    <div><button ng-model= "undoHide" id="undoHide" type="button" class=" btn btn-primary" ng-click="undoHideModel()" data-toggle="tooltip" data-placement="right" title="Show Hidden Parts">
+                            <span class="icon-undo"></span>                
+                        </button></div>
+
+
+                </div>
+
+                <!--                <div class="btn-group boxabovefooter" ng-show="cameramode">
+                                    <button type="button" class="btn btn-default" ng-click="flyModel(); showcameramode()" data-toggle="tooltip" data-placement="right" title="Fly">
+                                        <span class="glyphicon glyphicon-send"></span>    
+                                    </button>
+                                    <button type="button" class="btn btn-default" ng-click="cameraCAD(); showcameramode()" data-toggle="tooltip" data-placement="right" title="Orbit">
+                                        <span class="icon-orbit"></span>    
+                                    </button>
+                                    <button type="button" class="btn btn-default" ng-click="WalkThrough(); showcameramode()" data-toggle="tooltip" data-placement="right" title="Walkthrough">
+                                        <span class="icon-walkthrough"></span>    
+                                    </button>
+                                </div>   -->
+
+
+            </div>    
+
+            <!--            pop up to confirm  delete-->
+            <div id="delNote" class="modal fade" role="dialog">
+                <div class="modal-dialog  modal-sm" >
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <p>Are you Sure you want to Delete?</p>
+                            <div align="right">
+                                <button type="button" class="btn btn-default" ng-click="okdelete()">Yes</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>

@@ -1,0 +1,742 @@
+<div ng-controller="vesselController" id="vesselcontainer">
+    <md-toolbar layout="row">
+        <md-button class="menu" ng-click="toggleSideNavList()" hide-gt-sm aria-label="Toggle Menu">
+
+            <md-icon md-svg-icon="svg/reorder-option.svg" class="name"></md-icon>
+        </md-button>
+        <span flex></span> 
+
+        <h3>{{vessel.name}}</h3>
+        <span flex></span> 
+
+        <md-button ng-click="signOut()" aria-label="sign out" class="md-raised md-mini md-fab">
+            <md-tooltip md-direction="bottom">
+                SignOut
+            </md-tooltip>
+            <md-icon md-svg-icon="svg/businessman.svg" class="name"></md-icon>
+        </md-button>
+    </md-toolbar>  
+   
+    <div  class="content"  layout="vertical" flex>
+
+        <md-sidenav md-is-locked-open="$mdMedia('gt-sm')" class="md-sidenav-left md-whiteframe-6dp" md-component-id="sidenav">
+            
+                <img flex-sm="100" ng-src="svg/mm.png" class="md-card" alt="logo" ng-click="loadmultimarine()" height="110" width="300" max-width="300" style="padding-left:10px; overflow: visible">
+      
+       
+            <md-tabs md-dynamic-height md-border-bottom md-selected="selectedIndex">
+                <md-tab label="Vessels" md-on-select="onTabChanges(0)" ng-show="showvesselstab" id="showvesselstab" ng-click="loadVesselTab()">
+                    <md-content class="md-padding">
+                        <md-button aria-label="AddNewVessel" class="md-primary md-raised" ng-model="addNewVessel" ng-show="addnewvessel" ng-click="addVessel()">Add New Vessel</md-button>                                                
+                        <div layout="column" ng-show="selectvessel" flex>
+                            <div layout="column">
+                            <md-select placeholder="Select the Owner Company" ng-model="company" ng-show="showcompanylist">
+                                <md-option ng-repeat="company in vesselcompany" ng-value="company" ng-click="loadVesselsbyCompany(company.id)">
+                                    {{company.name}}
+                                </md-option>      
+                            </md-select>
+
+                            </div>
+                               <span flex></span>
+                               <div layout="row">
+                               <md-select placeholder="Select a Vessel" ng-model="vessel">
+                                <md-option ng-repeat="vessel in VesselList" ng-value="vessel" ng-click="loadArea(vessel.id); changePic(vessel.name)">
+                                    {{vessel.name}}
+                                </md-option>      
+                            </md-select>
+
+                            <div class="menu-demo-container" layout-align="center center" layout="column" ng-show="managevessel">
+                                
+                                <md-menu>
+                                    <md-button aria-label="manage vessel" class="md-icon-button" ng-click="openMenu($mdOpenMenu, $event)">
+                                        <md-icon md-menu-origin="" md-svg-icon="svg/linebutton.svg"></md-icon>
+                                    </md-button>
+                                    <md-menu-content width="4">
+                                        <md-menu-item>
+                                            <md-button ng-click="editvessel(vessel.name)">
+                                                <md-icon md-menu-origin="" md-svg-icon="svg/edit.svg"></md-icon>
+                                                Edit Vessel Details
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button ng-click="deleteVessel(vessel.id, vessel.name)">
+                                                <md-icon md-menu-origin="" md-svg-icon="svg/delete.svg"></md-icon>
+                                                Delete Vessel 
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-divider></md-menu-divider>
+                                        <md-menu-item>
+                                            <md-button ng-click="addarea(vessel.id)">
+                                                <md-icon md-menu-origin="" md-svg-icon="svg/blueplus.svg"></md-icon>
+                                                Add New Category to the Vessel
+                                            </md-button>
+                                        </md-menu-item>
+                                    </md-menu-content>
+                                </md-menu>
+                            </div></div>
+
+                        </div>
+                        <md-content role="navigation">
+                            <!--Loading Area | Area is a named as Category in the label, Category as Sub Category-->
+                            <md-list  ng-repeat="area in AreaList" ng-show="areasection">
+
+                                <md-list-item ng-click="checkAreaLoaded(area.id);">
+                                    <p class="md-primary" style="color: blue">
+                                        <!--                              <md-icon md-svg-icon="svg/collapse.svg" class="md-mini md-block"></md-icon>-->
+                                        {{area.name}}</p>
+                                    <span flex></span>
+                                    <div class="menu-demo-container" layout-align="center center" layout="column" ng-show="managearea">
+                                        <md-menu>
+                                            <md-button aria-label="manage area" class="md-icon-button" ng-click="openMenu($mdOpenMenu, $event)">
+                                                <md-icon md-menu-origin="" md-svg-icon="svg/area.svg"></md-icon>
+                                            </md-button>
+                                            <md-menu-content width="4">
+                                                <md-menu-item>
+                                                    <md-button ng-click="editArea(vessel.id, area.id, area.name, area.description)">
+                                                        <md-icon md-menu-origin="" md-svg-icon="svg/edit.svg"></md-icon>
+                                                        Edit Category
+                                                    </md-button>
+                                                </md-menu-item>
+                                                <md-menu-item>
+                                                    <md-button ng-click="deleteArea(vessel.id, area.id)">
+                                                        <md-icon md-menu-origin="" md-svg-icon="svg/delete.svg"></md-icon>
+                                                        Delete Category 
+                                                    </md-button>
+                                                </md-menu-item>
+                                                <md-menu-divider></md-menu-divider>
+                                                <md-menu-item>
+                                                    <md-button ng-click="addcategory(area.id, area.name)">
+                                                        <md-icon md-menu-origin="" md-svg-icon="svg/blueplus.svg"></md-icon>
+                                                        Add New Sub Category
+                                                    </md-button>
+                                                </md-menu-item>
+                                            </md-menu-content>
+                                        </md-menu>
+                                    </div>
+
+                                    <md-divider ng-if="!$last"></md-divider> 
+                                </md-list-item>
+                                <!--                                loading category-->
+                                <md-list-item id="categorylist" ng-show="area.id === selectedAreaid" ng-repeat="category in CategoryList" ng-click="getDocGroup(category.id, area.name, category.name)" style="padding-left: 2%">
+
+                                    <p class="md-body-2 md-subhead">{{category.name}}</p>  <span flex></span>
+                                    <span flex></span>
+                                    <div class="menu-demo-container" layout-align="center center" layout="column">
+                                        <md-menu>
+                                            <md-button aria-label="manage category" class="md-icon-button" ng-click="openMenu($mdOpenMenu, $event)" ng-show="managecategory">
+                                                <md-icon md-menu-origin="" md-svg-icon="svg/category.svg"></md-icon>
+                                            </md-button>
+                                            <md-menu-content width="4">
+                                                <md-menu-item>
+                                                    <md-button ng-click="editCategory(area.id, category.id, category.name, category.description)">
+                                                        <md-icon md-menu-origin="" md-svg-icon="svg/edit.svg"></md-icon>
+                                                        Edit Sub Category Details
+                                                    </md-button>
+                                                </md-menu-item>
+                                                <md-menu-item>
+                                                    <md-button ng-click="deleteCategory(area.id, category.id)">
+                                                        <md-icon md-menu-origin="" md-svg-icon="svg/delete.svg"></md-icon>
+                                                        Delete Sub Category 
+                                                    </md-button>
+                                                </md-menu-item>
+                                                <md-menu-divider></md-menu-divider>
+                                                <md-menu-item>
+                                                    <md-button ng-click="adddocgroup(category.id, area.name, category.name)">
+                                                        <md-icon md-menu-origin="" md-svg-icon="svg/blueplus.svg"></md-icon>
+                                                        Add New Document Group
+                                                    </md-button>
+                                                </md-menu-item>
+                                            </md-menu-content>
+                                        </md-menu>
+                                    </div>
+
+                                </md-list-item>
+                                <md-divider></md-divider> 
+                            </md-list> 
+
+                        </md-content>
+
+
+                    </md-content>
+                </md-tab>
+                <span flex></span>
+                <md-tab label="Users" md-on-select="onTabChanges(1)" ng-if="showusertab" id="showuserstab" ng-click="loadUserTab()" style="width: min-content">
+
+                </md-tab> 
+                <span flex></span>
+                <md-tab label="Ship Owner" md-on-select="onTabChanges(2)" ng-if="showcompanytab" id="showcompaniestab" ng-click="loadOwnerTab()" style="width: min-content">
+
+                </md-tab>
+            </md-tabs>
+
+        </md-sidenav>
+
+        <md-content id="content" flex ng-show="onvesselstab">
+            <!--            Add New Vessel-->
+            <div ng-show="addVessels" class="md-whiteframe-4dp" flex-gt-sm style="padding-top: 5px">
+              <md-toolbar layout="row" layout-align="center center" style="padding-top: 20px">
+            <span><b>New Vessel Details</b> </span>
+            
+
+        </md-toolbar>
+                <div layout-gt-sm="row" flex-gt-sm style="padding-left: 5px;">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Vessel Name:</label>
+                        <input name="vesselname" ng-model="vname" type="text" required>  
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Vessel Type</label>
+                        <md-select ng-model="types" ng-change="displaynewvesseltype()" placeholder="Select a VesselType" required>
+                            <md-option ng-repeat="types in vesselstypes" ng-value="types"> 
+                                {{types.name}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-sm ng-show="onothersvesseltype">
+                        <label style="color: black">New Vessel Type: </label>
+                        <input name="ovesseltype" ng-model="ovesseltype" type="text" required>
+                        <div ng-messages="ovesseltype.$error"  ng-if='eovesseltype.$dirty'>
+                            <div ng-message="required">*required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+                <div layout-gt-sm="row" flex-sm style="padding-left: 5px;"> 
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Ship Owner Company</label>
+                        <md-select ng-model="owner" required ng-change="loadUsersinGroup(owner)">
+                            <md-option><em>None</em></md-option>
+                            <md-option ng-repeat="owner in vesselsowners" ng-value="owner">
+                             {{owner.name}} 
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Vessel Captain</label>
+                        <md-select ng-model="captain">
+                            <md-option><em>None</em></md-option>
+                            <md-option ng-repeat="captain in vesselscaptains" ng-value="captain">
+                                {{captain.login}} 
+                            </md-option></md-select>
+                    </md-input-container>
+                    
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Vessel Inspector</label>
+                        <md-select ng-model="inspector" ng-model-options="{trackBy: '$value.login'}">
+                            <md-option><em>None</em></md-option>
+                            <md-option ng-repeat="inspector in vesselsinspector" ng-value="inspector">
+                                {{inspector.login}} 
+                            </md-option></md-select>
+                    </md-input-container>
+
+                </div>
+                <div layout-gt-sm="row" flex-gt-sm style="padding-left: 5px;">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Description:</label>
+                        <input name="vesseldesc" ng-model="vdesc" type="text">  
+                    </md-input-container>
+                </div>
+                 <label style="padding-left: 5px;">Vessel Picture: &nbsp; </label>
+                <div layout-gt-sm="row" flex-gt-sm style="padding-left: 5px;">
+                   
+              
+                    <input file-model="vfile" id="filename" name="vfile" type="file" class="md-block" flex-gt-sm required>
+
+                </div>
+                <div layout-gt-sm="row" flex-gt-sm style="padding-left: 5px;">
+                    <md-input-container>
+                        <md-button class="md-primary md-raised" ng-click="savevessel(types.name, owner.id, owner.name, captain.login, inspector.login)" ng-disabled="isDisabled">
+                            Save Vessel
+                        </md-button>
+                        <md-button class="md-raised" ng-click="cancel()">
+                            Cancel
+                        </md-button>  </md-input-container> </div>
+            </div>  
+
+            <!--            Vessel Picture-->
+            <div class="container imagewrap" flex-gt-xs="100" ng-show="onvesselchange" layout-align="end center" style="padding-top: 15px;" >
+                <img  ng-style="myStyle" ng-model="vesselimage" flex-sm class="md-whiteframe-6dp img"  ng-src="http://itekvrsoftware.com/vims/files/{{selectedvesselpic.picture}}" alt="" />
+                <md-button class="md-icon-button md-default md-mini md-fab changepic" ng-click="updatePicture(vessel.name);" ng-mouseover="myStyle={opacity: 0.3}; imagemouseover() " ng-mouseleave="myStyle={opacity: 1.0}" ng-show="updatepic" >
+                    <md-icon md-svg-src="svg/edit.svg" aria-label="Close dialog"></md-icon>
+                    <md-tooltip md-direction="bottom">
+                        Change Picture
+                    </md-tooltip>  
+                </md-button>
+
+            </div> 
+
+            <!--            Display Document Group-->
+            <div ng-show="oncategoryclick" flex-gt-sm="50" style="padding-top: 10px">
+                <div class="container" flex style="max-width: max-content">
+                    <label><b>Document Groups for Category: {{areaname}} {{categoryname}}</b></label>
+                </div>
+
+                <div id="docgroup" style="padding-top: 5px">
+                    <table class="md-table" flex-gt-sm="100" style="width:100%">
+                        <tbody flex-gt-sm="50">
+                            <tr ng-repeat="docgroup in DocGroup" class="md-table-content">
+                                <td>
+                                    <div>
+                                        <md-button aria-label="" class="md-primary md-block" ng-click="viewdocindocgroup(docgroup.id, docgroup.name)" style="text-align: left">
+
+                                            <md-tooltip md-direction="bottom">
+                                                Click to see Documents
+                                            </md-tooltip>
+                                            <md-icon md-menu-origin="" md-svg-icon="svg/docgroup1.svg"></md-icon>
+                                            {{docgroup.name}}
+                                        </md-button>
+                                    </div>
+                                </td>
+                                <td>  
+                                    <span flex></span>
+                                    <div class="menu-demo-container" layout-align="center center" layout="column">
+                                        <md-menu>
+                                            <md-button aria-label="manage docgroup" class="md-icon-button" ng-click="openMenu($mdOpenMenu, $event)" ng-show="managedocgroup">
+
+                                                <md-icon md-menu-origin="" md-svg-icon="svg/doubleright.svg"></md-icon>
+
+                                            </md-button>
+                                            <md-menu-content width="4">
+                                                <md-menu-item>
+                                                    <md-button ng-click="editDocgroup(docgroup.id, docgroup.name, docgroup.description)">
+                                                        <md-icon md-menu-origin="" md-svg-icon="svg/edit.svg"></md-icon>
+                                                        Edit Document Group Details
+                                                    </md-button>
+                                                </md-menu-item>
+                                                <md-menu-item>
+                                                    <md-button ng-click="deleteDocGroup(docgroup.id)">
+                                                        <md-icon md-menu-origin="" md-svg-icon="svg/delete.svg"></md-icon>
+                                                        Delete Document Group 
+                                                    </md-button>
+                                                </md-menu-item>
+                                                <md-menu-divider></md-menu-divider>
+                                                <md-menu-item>
+                                                    <md-button ng-click="addnewdocument(docgroup.id, category.id)">
+                                                        <md-icon md-menu-origin="" md-svg-icon="svg/blueplus.svg"></md-icon>
+                                                        Add New Document 
+                                                    </md-button>
+                                                </md-menu-item>
+                                            </md-menu-content>
+                                        </md-menu>
+                                        <md-menu>
+                                            <md-button aria-label="manage docgroup" class="md-icon-button" ng-click="openMenu($mdOpenMenu, $event)" ng-show="managedocgroup1">
+                                                <md-icon md-menu-origin="" md-svg-icon="svg/doubleright.svg"></md-icon>
+                                            </md-button>
+                                            <md-menu-content width="4">
+                                                <md-menu-item>
+                                                    <md-button ng-click="addnewdocument(docgroup.id, category.id)">
+                                                        <md-icon md-menu-origin="" md-svg-icon="svg/blueplus.svg"></md-icon>
+                                                        Add New Document 
+                                                    </md-button>
+                                                </md-menu-item>
+                                            </md-menu-content>
+                                        </md-menu>
+                                    </div>
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!--            Display Document-->
+            <div ng-show="ondocgroupclick" style="padding-top: 10px" layout-align="start center">
+                <div class="container" flex style="max-width: max-content">
+                    <label style="color: royalblue"><b>Documents in Document Group: {{docgroupname}}</b></label>
+                    <span flex></span>
+                    <md-button class="md-icon-button" ng-click="back()">
+                        <md-tooltip md-direction="bottom">
+                            Back to Document Group
+                        </md-tooltip>
+                        <md-icon md-svg-src="svg/back.svg" class="md-fab md-accent" aria-label="back dialog"></md-icon>
+                    </md-button>
+
+                </div>
+
+                <div id="docs" style="padding-top: 5px">
+                    <table class="md-table" flex-gt-sm="100" style="width:100%">
+
+                        <tbody flex-gt-sm="50">
+                            <tr ng-repeat="docs in doclists| limitTo: query.limit : (query.page -1) * query.limit"  class="md-table-content" flex-gt-sm="50">
+                                <td flex-gt-sm="50">
+                                    <div flex-gt-sm="50">
+                                        <md-button aria-label="" class="md-primary md-block" ng-click="opendoc(docs.path)" style="text-align: left; word-wrap: normal">
+
+                                            <md-tooltip md-direction="bottom">
+                                                Click to open the document
+                                            </md-tooltip>
+
+                                            <md-icon md-menu-origin="" md-svg-icon="svg/viewdoc.svg"></md-icon>
+                                            {{docs.description}}
+
+                                        </md-button>
+                                    </div>
+                                </td>
+                                <td>  
+                                    <span flex></span>
+
+                                    <div class="menu-demo-container" layout-align="center center" layout="column">
+                                        <md-menu>
+                                            <md-button aria-label="manage doc" class="md-icon-button md-mini" ng-click="openMenu($mdOpenMenu, $event)" ng-show="deletedoc">
+
+                                                <md-icon md-menu-origin="" md-svg-icon="svg/2 dots.svg"></md-icon>
+
+                                            </md-button>
+                                            <md-menu-content width="4">
+                                                <md-menu-item>
+                                                    <md-button ng-click="reloadDoc(docs.id, docs.description)">
+                                                        <md-icon md-menu-origin="" md-svg-icon="svg/edit.svg"></md-icon>
+                                                        Reload a New Document
+                                                    </md-button>
+                                                </md-menu-item>
+                                                <md-menu-item>
+                                                    <md-button ng-click="deleteDoc(docs.id)">
+                                                        <md-icon md-menu-origin="" md-svg-icon="svg/delete.svg"></md-icon>
+                                                        Delete Document 
+                                                    </md-button>
+                                                </md-menu-item>
+
+                                            </md-menu-content>
+                                        </md-menu>
+
+                                    </div>
+
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+
+                <div layout-align="start center">
+                    <md-table-pagination style="position: relative; left: 0" md-limit="query.limit" md-limit-options="limitOptions" 
+                                         md-page="query.page" md-total="{{doclength}}"
+                                         md-boundary-links="options.boundaryLinks" 
+                                         md-on-paginate="logPagination"></md-table-pagination>
+                </div>
+
+
+            </div>
+
+            <!--            Add Area-->
+
+            <div ng-show="addArea" class="md-whiteframe-4dp" flex-gt-sm>
+                <form name="addareaform" id="addareaform">    <md-toolbar layout="row" class="md-hue-3 md-toolbar-tools">
+                        <span><b>New Category Details:</b> </span>
+                    </md-toolbar>
+                    <div layout-gt-sm="row" flex-gt-sm style="padding-left: 5px;">
+                        <md-input-container class="md-block" flex-gt-sm>
+                            <label style="color: black">Category Name:</label>
+                            <input name="aname" ng-model="aname" id="aname" type="text" required ng-init=" ">  
+                            <div ng-messages="aname.$error" ng-if="(aname.$dirty || submitted) && aname.$error.required">
+                                <p ng-message="required">*required</p>
+                            </div>
+                        </md-input-container>
+                        <md-input-container class="md-block" flex-gt-sm>
+                            <label style="color: black">Description:</label>
+                            <input id="adesc" ng-model="adesc" type="text">
+                        </md-input-container>
+                    </div>
+                    <div layout="row" flex-gt-sm style="padding-left: 5px;">
+                        <md-button class="md-primary md-raised" ng-click="saveArea()" ng-disabled="isDisabled">
+                            Save
+                        </md-button>
+                        <md-button class="md-raised" ng-click="cancel()">
+                            Cancel
+                        </md-button>
+                    </div>
+                </form>
+            </div> 
+
+            <!--            Add Category-->
+            <div ng-show="addCategory" class="md-whiteframe-4dp" flex-gt-sm>
+                <md-toolbar layout="row" class="md-hue-3 md-toolbar-tools">
+                    <span><b>New Sub Category Details:</b> </span>
+                </md-toolbar>
+                <div layout-gt-sm="row"  flex-gt-sm style="padding-left: 5px;">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Sub Category Name:</label>
+                        <input name="catgoryname" ng-model="cname" type="text" required>  
+                    </md-input-container>
+
+
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Description:</label>
+                        <input id="cdesc" ng-model="cdesc" type="text">
+                    </md-input-container>
+                </div>
+                <div layout-gt-sm="row"  flex-gt-sm style="padding-left: 5px;">
+                    <md-button class="md-primary md-raised" ng-click="saveCategory()">
+                        Save
+                    </md-button>
+                    <md-button class="md-raised" ng-click="cancel()">
+                        Cancel
+                    </md-button>
+                </div>
+            </div> 
+            <!--            Add Document Group-->
+            <div ng-show="addDocGroup" class="md-whiteframe-4dp" flex-gt-sm>
+                <md-toolbar layout="row" class="md-hue-3 md-toolbar-tools">
+                    <span><b>New Document Group Details:</b></span></md-toolbar> 
+                <div layout-gt-sm="row"  flex-gt-sm style="padding-left: 5px;">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Document Group Name:</label>
+                        <input name="docgroupname" ng-model="dgname" type="text" required>  
+                    </md-input-container>
+
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Description:</label>
+                        <input id="cdesc" ng-model="dgdesc" type="text">
+                    </md-input-container>
+                </div>
+                <div layout-gt-sm="row" flex-gt-sm style="padding-left: 5px;">
+                    <md-button class="md-primary md-raised" ng-click="saveDocGroup()" ng-disabled="isDisabled">
+                        Save
+                    </md-button>
+                    <md-button class="md-raised" ng-click="cancel()">
+                        Cancel
+                    </md-button>
+                </div>
+            </div> 
+            <!--            Add Document-->
+            <div ng-show="addDocument" class="md-whiteframe-4dp" flex-gt-sm>
+                <md-toolbar layout="row" class="md-hue-3 md-toolbar-tools">
+                    <span><b>Upload New Document: </b>
+                </md-toolbar>
+                <div layout-gt-sm="row" flex-gt-sm style="padding-left: 5px;">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Short Document Description:</label>
+                        <input name="docname" ng-model="ddesc" type="text" required>  
+                    </md-input-container>
+                </div>
+                <div layout-gt-sm="row"  flex-gt-sm style="padding-left: 5px;"> 
+                    <input file-model="myfile" id="filename1" name="file" type="file" class="md-block" flex-gt-sm required>
+                </div>
+
+                <div layout-gt-sm="row"  flex-gt-sm style="padding-left: 5px;">
+                    <md-button class="md-primary md-raised" ng-click="saveDoc()" name="submit" type="submit" ng-disabled="isDisabled">
+                        Save
+                    </md-button>
+                    <md-button class="md-raised" ng-click="cancel()">
+                        Cancel
+                    </md-button>
+                </div>
+            </div> 
+
+            <!--            Edit Area-->
+            <div ng-show="EditArea" class="md-whiteframe-4dp" flex-gt-sm>
+                <md-toolbar layout="row" class="md-hue-3 md-toolbar-tools">
+                    <span><b>Edit Category Details:</b> </span>
+                </md-toolbar>
+                <div layout-gt-sm="row" flex-gt-sm style="padding-left: 5px;">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Category Name:</label>
+                        <input name="areaname" ng-model="eaname" type="text" required>  
+
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Description:</label>
+                        <input id="adesc" ng-model="eadesc" type="text">
+                    </md-input-container>
+                </div>
+                <div layout="row" flex-gt-sm style="padding-left: 5px;">
+                    <md-button class="md-primary md-raised" ng-click="updateArea()" ng-disabled="isDisabled">
+                        Update
+                    </md-button>
+                    <md-button class="md-raised" ng-click="cancel()">
+                        Cancel
+                    </md-button>
+                </div>
+            </div> 
+
+            <!--            Edit Category-->
+            <div ng-show="EditCategory" class="md-whiteframe-4dp" flex-gt-sm>
+                <md-toolbar layout="row" class="md-hue-3 md-toolbar-tools">
+                    <span><b>Edit Sub Category Details:</b> </span>
+                </md-toolbar>
+                <div layout-gt-sm="row"  flex-gt-sm style="padding-left: 5px;">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Sub Category Name:</label>
+                        <input name="catgoryname" ng-model="ecname" type="text" required>  
+                    </md-input-container>
+
+
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Description:</label>
+                        <input id="cdesc" ng-model="ecdesc" type="text">
+                    </md-input-container>
+                </div>
+                <div layout-gt-sm="row"  flex-gt-sm style="padding-left: 5px;">
+                    <md-button class="md-primary md-raised" ng-click="updateCategory()" ng-disabled="isDisabled">
+                        Update
+                    </md-button>
+                    <md-button class="md-raised" ng-click="cancel()">
+                        Cancel
+                    </md-button>
+                </div>
+            </div> 
+
+            <!--            Edit Document Group-->
+            <div ng-show="EditDocGroup" class="md-whiteframe-4dp" flex-gt-sm>
+                <md-toolbar layout="row" class="md-hue-3 md-toolbar-tools">
+                    <span><b>Edit Document Group Details:</b></span></md-toolbar> 
+                <div layout-gt-sm="row"  flex-gt-sm style="padding-left: 5px;">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Document Group Name:</label>
+                        <input name="docgroupname" ng-model="edgname" type="text" required>  
+                    </md-input-container>
+
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Description:</label>
+                        <input id="cdesc" ng-model="edgdesc" type="text">
+                    </md-input-container>
+                </div>
+                <div layout-gt-sm="row" flex-gt-sm style="padding-left: 5px;">
+                    <md-button class="md-primary md-raised" ng-click="updateDocGroup()" ng-disabled="isDisabled">
+                        Update
+                    </md-button>
+                    <md-button class="md-raised" ng-click="cancel()">
+                        Cancel
+                    </md-button>
+                </div>
+            </div> 
+
+            <!--            Edit Vessel Picture -->
+            <div ng-show="EditPicture" class="md-whiteframe-4dp" flex-gt-sm>
+                <md-toolbar layout="row" class="md-hue-3 md-toolbar-tools">
+                    <span><b>Upload New Vessel Picture: </b>
+                </md-toolbar>
+                <div layout-gt-sm="row"  flex-gt-sm style="padding-left: 5px; padding-top: 10px; padding-bottom: 10px"> 
+
+                    <input file-model="evfile" id="efilename" name="evfile" type="file" class="md-block" flex-gt-sm required>
+
+                </div>
+
+                <div layout-gt-sm="row"  flex-gt-sm style="padding-left: 5px;">
+                    <md-button class="md-primary md-raised" ng-click="updatePic()" name="submit" type="submit" ng-disabled="isDisabled">
+                        Update
+                    </md-button>
+                    <md-button class="md-raised" ng-click="cancel()">
+                        Cancel
+                    </md-button>
+                </div>
+            </div> 
+
+            <!--            Edit Vessel MetaData -->
+            <div ng-show="EditVesselsInfo" class="md-whiteframe-4dp"  style="padding-top: 5px" flex-gt-sm>
+                <md-toolbar layout="row" class="md-hue-3">
+                    <div class="md-toolbar-tools">
+                        <span>Edit Vessel Details</span> 
+                    </div>
+                </md-toolbar>
+                <div layout-gt-sm="row" flex-gt-sm style="padding-left: 5px;">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Vessel Name:</label>
+                        <input name="vesselname" ng-model="evname" type="text" required ng-disabled="true">  
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Vessel Type</label>
+                        <md-select ng-model="selectedtypename" ng-model-options="{trackBy: '$value.name'}" ng-change="displaynewvesseltype()">
+                            <md-option><em>None</em></md-option>
+                            <md-option ng-value="types" ng-repeat="types in vesselstypes"> {{types.name}}</md-option>
+                        </md-select>
+
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-sm ng-show="eonothersvesseltype">
+                        <label style="color: black">New Vessel Type: </label>
+                        <input name="eovesseltype" ng-model="eovesseltype" type="text" required>
+                        <div ng-messages="eovesseltype.$error"  ng-if='eovesseltype.$dirty'>
+                            <div ng-message="required">*required</div>
+                        </div>
+                    </md-input-container>
+
+                </div>
+                <div layout-gt-sm="row" flex-sm style="padding-left: 5px;"> 
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Ship Owner Company</label>
+                        <md-select ng-model="selectedownername" ng-model-options="{trackBy: '$value.name'}" required ng-change="loadUsersinGroup(selectedownername)">
+                           <md-option ng-repeat="owner in vesselsowners" ng-value="owner">
+                              {{owner.name}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Vessel Captain</label>
+                        <md-select ng-model="selectedcaptainname" ng-model-options="{trackBy: '$value.login'}">
+                            <md-option><em>None</em></md-option>
+                            <md-option ng-repeat="captain in vesselscaptains" ng-value="captain">
+                                {{captain.login}}
+                            </md-option></md-select>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Vessel Inspector</label>
+                        <md-select ng-model="selectedinspectorname" ng-model-options="{trackBy: '$value.login'}">
+                            <md-option><em>None</em></md-option>
+                            <md-option ng-repeat="inspector in vesselsinspector" ng-value="inspector">
+                                {{inspector.login}}
+                            </md-option></md-select>
+                    </md-input-container>
+                </div>
+                <div layout-gt-sm="row" flex-gt-sm style="padding-left: 5px;">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Description:</label>
+                        <input name="vesseldesc" ng-model="vdesc" type="text">  
+                    </md-input-container>
+                </div>
+
+                <div layout-gt-sm="row" flex-gt-sm style="padding-left: 5px;">
+                    <md-input-container>
+                        <md-button class="md-primary md-raised" ng-click="updateVesselInfo(selectedtypename.name, selectedownername.id, selectedownername.name, selectedcaptainname.login, selectedinspectorname.login)">
+                            Update Vessel
+                        </md-button>
+                        <md-button class="md-raised" ng-click="cancel()">
+                            Cancel
+                        </md-button>  </md-input-container> </div>
+            </div>
+            <br>
+
+            <!--            Edit Document-->
+            <div ng-show="editDocument" class="md-whiteframe-4dp" flex-gt-sm>
+                <md-toolbar layout="row" class="md-hue-3 md-toolbar-tools">
+                    <span><b>Reload New Document: </b>
+                </md-toolbar>
+                <div layout-gt-sm="row" flex-gt-sm style="padding-left: 5px;">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label style="color: black">Short Document Description:</label>
+                        <input name="docname" ng-model="eddesc" type="text" required>  
+                    </md-input-container>
+                </div>
+                <div layout-gt-sm="row"  flex-gt-sm style="padding-left: 5px;"> 
+                    <input file-model="emyfile" id="emyfile" name="emyfile" type="file" class="md-block" flex-gt-sm required>
+                </div>
+
+                <div layout-gt-sm="row"  flex-gt-sm style="padding-left: 5px;">
+                    <md-button class="md-primary md-raised" ng-click="updateDoc()" name="submit" type="submit" ng-disabled="isDisabled">
+                        Reload
+                    </md-button>
+                    <md-button class="md-raised" ng-click="cancel()">
+                        Cancel
+                    </md-button>
+                </div>
+            </div> <br>
+
+        </md-content>
+
+        <md-content id="content" ng-show="onuserstab" ng-controller="userController as ctrl" flex>
+            <User-panel>
+
+            </User-panel>
+        </md-content>
+        
+        <md-content id="content" ng-show="oncompaniestab" ng-controller="companyController as ctrl1" flex>
+            <Company-panel></Company-panel>
+        </md-content>
+
+        
+    </div>
+
+</div>
+
